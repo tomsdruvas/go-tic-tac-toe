@@ -2,19 +2,19 @@ package models_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"src/src/models"
+	. "src/src/models"
 	"testing"
 )
 
 func TestTicTacToeSymbolString(t *testing.T) {
 	tests := []struct {
-		symbol   models.TicTacToeSymbol
+		symbol   TicTacToeSymbol
 		expected string
 	}{
-		{models.Empty, "Empty"},
-		{models.Circle, "Circle"},
-		{models.Cross, "Cross"},
-		{models.TicTacToeSymbol(999), "Unknown"},
+		{Empty, "Empty"},
+		{Circle, "Circle"},
+		{Cross, "Cross"},
+		{TicTacToeSymbol(999), "Unknown"},
 	}
 
 	for _, test := range tests {
