@@ -7,10 +7,12 @@ import (
 )
 
 func main() {
+	healthCheckController := controllers.NewHealthCheckController()
 	boardController := controllers.NewCreateGameController()
 
 	router := gin.Default()
 
+	router.GET("/health", healthCheckController.HealthCheckHandler)
 	router.GET("/hello", boardController.CreateGameControllerHandler)
 
 	router.Run(":8080")
