@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os/exec"
+	"sync"
 	"time"
 )
 
@@ -37,8 +39,24 @@ func SetupDocker() {
 }
 
 func StopDockerCompose() {
-	cmd := exec.Command("docker", "compose", "-f", "../../../docker-compose.test.yml", "down")
-	cmd.Run()
-	cmd1 := exec.Command("docker", "container", "stop", "buildx_buildkit_mybuilder0")
-	cmd1.Run()
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		cmd := exec.Command("docker", "compose", "-f", "../../../docker-compose.test.yml", "down")
+		if err := cmd.Run(); err != nil {
+			log.Printf("docker compose down failed: %v", err)
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		cmd := exec.Command("docker", "container", "stop", "buildx_buildkit_mybuilder0")
+		if err := cmd.Run(); err != nil {
+			log.Printf("stopping container buildx_buildkit_mybuilder0 failed: %v", err)
+		}
+	}()
+
+	wg.Wait()
 }
