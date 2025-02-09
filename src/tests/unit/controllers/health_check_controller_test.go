@@ -10,7 +10,7 @@ import (
 	"src/src/controllers"
 )
 
-func setupRouter() *gin.Engine {
+func setupHealthCheckRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.Default()
 	hc := controllers.NewHealthCheckController()
@@ -20,7 +20,7 @@ func setupRouter() *gin.Engine {
 }
 
 func TestHealthCheckHandler(t *testing.T) {
-	r := setupRouter()
+	r := setupHealthCheckRouter()
 
 	req, _ := http.NewRequest("GET", "/health", nil)
 	w := httptest.NewRecorder()

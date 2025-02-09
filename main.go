@@ -13,7 +13,7 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/health", healthCheckController.HealthCheckHandler)
-	router.GET("/hello", boardController.CreateGameControllerHandler)
+	router.POST("/create-game", boardController.CreateGameControllerHandler)
 
 	router.Run(":8080")
 }

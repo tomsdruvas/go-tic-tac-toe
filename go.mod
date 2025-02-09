@@ -6,7 +6,7 @@ toolchain go1.23.5
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/onsi/gomega v1.36.2
+	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.10.0
 )
 
