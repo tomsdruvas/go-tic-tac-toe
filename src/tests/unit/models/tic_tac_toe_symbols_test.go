@@ -19,7 +19,7 @@ func TestTicTacToeSymbolString(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.expected, func(t *testing.T) {
-			assert.Equal(t, test.expected, test.symbol.String(), "String representation does not match")
+			assert.Equal(t, test.expected, test.symbol.String())
 		})
 	}
 }
