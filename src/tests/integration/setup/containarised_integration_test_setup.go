@@ -39,4 +39,6 @@ func SetupDocker() {
 func StopDockerCompose() {
 	cmd := exec.Command("docker", "compose", "-f", "../../../docker-compose.test.yml", "down")
 	cmd.Run()
+	cmd1 := exec.Command("docker", "container", "stop", "buildx_buildkit_mybuilder0")
+	cmd1.Run()
 }
