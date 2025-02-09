@@ -38,3 +38,4 @@ go.work.sum
 # IntelliJ module files (if you prefer to generate them locally)
 *.iml
 
+.DS_Store
