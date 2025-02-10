@@ -1,4 +1,4 @@
-package controllers
+package setup
 
 import (
 	"fmt"

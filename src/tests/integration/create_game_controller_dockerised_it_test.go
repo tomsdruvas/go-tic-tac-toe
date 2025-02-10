@@ -1,10 +1,11 @@
-package controllers_test
+package integration_test
 
 import (
 	"encoding/json"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
+	_ "src/src/tests/integration/setup"
 	"strings"
 	"testing"
 )
