@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"net/http/httptest"
-	"src/src/models"
+	"src/src/services"
 	"strings"
 	"testing"
 
@@ -23,8 +23,9 @@ func setupCreateGameRouter() *gin.Engine {
 }
 
 func TestCreateGameHandler(t *testing.T) {
+	withMockedUUID(t, mockUUID)
+
 	r := setupCreateGameRouter()
-	mockUuidGeneration(t)
 
 	jsonBody := `{"player1": "John"}`
 	bodyReader := strings.NewReader(jsonBody)
@@ -49,14 +50,13 @@ func TestCreateGameHandler(t *testing.T) {
 	)
 }
 
-func mockUuidGeneration(t *testing.T) {
-	origNewUUID := models.NewUUID
-	fixedUUID, _ := uuid.Parse("00000000-0000-0000-0000-000000000000")
-	models.NewUUID = func() uuid.UUID {
-		return fixedUUID
-	}
+func mockUUID() uuid.UUID {
+	return uuid.MustParse("00000000-0000-0000-0000-000000000000")
+}
 
+func withMockedUUID(t *testing.T, mockFunc func() uuid.UUID) {
+	services.NewUUID = mockFunc
 	t.Cleanup(func() {
-		models.NewUUID = origNewUUID
+		services.NewUUID = uuid.New
 	})
 }
