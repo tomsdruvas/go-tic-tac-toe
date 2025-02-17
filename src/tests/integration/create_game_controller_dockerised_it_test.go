@@ -13,7 +13,7 @@ import (
 func TestCreateGameIntegration(t *testing.T) {
 	jsonBody := `{"player1": "John"}`
 	bodyReader := strings.NewReader(jsonBody)
-	resp, err := http.Post(TestServerURL+"/create-game", "application/json", bodyReader)
+	resp, err := http.Post(TestServerURL+"/game-session", "application/json", bodyReader)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 
