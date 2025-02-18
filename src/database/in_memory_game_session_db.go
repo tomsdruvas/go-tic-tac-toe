@@ -45,6 +45,17 @@ func (db *InMemoryGameSessionDB) GetSession(id string) (models.GameSession, erro
 	return session, nil
 }
 
+func (db *InMemoryGameSessionDB) UpdateSession(id string, session models.GameSession) (models.GameSession, error) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
+	_, exists := db.sessions[id]
+	if !exists {
+		return models.GameSession{}, errors.New("session to update not found")
+	}
+	db.sessions[id] = session
+	return session, nil
+}
+
 func (db *InMemoryGameSessionDB) Clear() {
 	db.mu.Lock()
 	defer db.mu.Unlock()

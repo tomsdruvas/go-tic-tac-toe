@@ -14,6 +14,7 @@ import (
 
 const mockUuidValue string = "123e4567-e89b-12d3-a456-426614174000"
 const playerOne string = "player1"
+const playerTwo string = "player2"
 
 func mockUUID() uuid.UUID {
 	mockedUUID, _ := uuid.Parse(mockUuidValue)
@@ -49,9 +50,47 @@ func TestCreateTicTacToeGameSession_ValidUUID(t *testing.T) {
 	assert.Regexp(t, uuidRegex, session.SessionId)
 }
 
+func TestAddPlayerTwoToGameSession(t *testing.T) {
+	createGameSessionInDatabase()
+	updatedGameSession, err := services.AddPlayerTwoToGameSession(mockUuidValue, playerTwo)
+	assert.Nil(t, err)
+	assert.NotNil(t, updatedGameSession)
+	assert.Equal(t, playerOne, updatedGameSession.Player1)
+	assert.Equal(t, playerTwo, updatedGameSession.Player2)
+
+	retrievedSession, err := services.RetrieveTicTacToeGameSession(mockUuidValue)
+	assert.Nil(t, err)
+	assert.NotNil(t, retrievedSession)
+	assert.Equal(t, playerOne, retrievedSession.Player1)
+	assert.Equal(t, playerTwo, retrievedSession.Player2)
+	clearGameSessionDatabase()
+}
+
+func TestAddPlayerTwoToGameSession_sessionNotFound(t *testing.T) {
+	_, err := services.AddPlayerTwoToGameSession(mockUuidValue, playerTwo)
+	assert.NotNil(t, err)
+	assert.Equal(t, err.Error(), "session not found")
+}
+
+func TestAddPlayerTwoToGameSession_playerTwoAlreadyExists(t *testing.T) {
+	createGameSessionInDatabaseWith2Players()
+	_, err := services.AddPlayerTwoToGameSession(mockUuidValue, playerTwo)
+	assert.NotNil(t, err)
+	assert.Equal(t, err.Error(), "player2 is already set in the session")
+}
+
 func createGameSessionInDatabase() {
 	playerName := playerOne
 	session := models.NewGameSession(playerName)
+	session.SessionId = mockUuidValue
+	db := database.GetInstance()
+	db.StoreSession(*session)
+}
+
+func createGameSessionInDatabaseWith2Players() {
+	playerName := playerOne
+	session := models.NewGameSession(playerName)
+	session.Player2 = playerTwo
 	session.SessionId = mockUuidValue
 	db := database.GetInstance()
 	db.StoreSession(*session)

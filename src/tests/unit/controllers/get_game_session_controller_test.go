@@ -4,8 +4,6 @@ import (
 	_ "github.com/google/uuid"
 	"net/http"
 	"net/http/httptest"
-	"src/src/database"
-	"src/src/models"
 	_ "src/src/services"
 	"testing"
 
@@ -24,7 +22,7 @@ func setupGetGameSessionRouter() *gin.Engine {
 }
 
 func TestGetGameSessionSuccessfulHandler(t *testing.T) {
-	createGameSessionInDatabase()
+	CreateGameSessionInDatabase()
 	r := setupGetGameSessionRouter()
 
 	req, _ := http.NewRequest("GET", "/game-session/00000000-0000-0000-0000-000000000000", nil)
@@ -46,7 +44,7 @@ func TestGetGameSessionSuccessfulHandler(t *testing.T) {
 		w.Body.String(),
 	)
 
-	clearGameSessionDatabase()
+	ClearGameSessionDatabase()
 }
 
 func TestGetGameSessionNotFoundHandler(t *testing.T) {
@@ -61,17 +59,4 @@ func TestGetGameSessionNotFoundHandler(t *testing.T) {
 		`{"error": "Game session not found"}`,
 		w.Body.String(),
 	)
-}
-
-func createGameSessionInDatabase() {
-	playerName := "Alice"
-	session := models.NewGameSession(playerName)
-	session.SessionId = "00000000-0000-0000-0000-000000000000"
-	db := database.GetInstance()
-	db.StoreSession(*session)
-}
-
-func clearGameSessionDatabase() {
-	db := database.GetInstance()
-	db.Clear()
 }
