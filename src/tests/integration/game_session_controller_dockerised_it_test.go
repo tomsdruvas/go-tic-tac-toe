@@ -14,8 +14,9 @@ var currentSessionId string
 
 func TestTicTacToeFullFlow(t *testing.T) {
 	createGameSessionIntegration(t)
-	retrieveGameSessionIntegration(t)
+	assertBodyWithOnePlayer(retrieveGameSessionWithResponseBodyIntegration(t))
 	addPlayerTwoToGameSessionIntegration(t)
+	assertBodyWithTwoPlayer(retrieveGameSessionWithResponseBodyIntegration(t))
 }
 
 func TestRetrieveNotFoundGameSessionIntegration(t *testing.T) {
@@ -65,8 +66,12 @@ func createGameSessionIntegration(t *testing.T) {
 	assert.Equal(t, expectedGrid, response["gameGrid"])
 }
 
-func retrieveGameSessionIntegration(t *testing.T) {
-	resp, err := http.Get(TestServerURL + "/game-session/" + currentSessionId)
+func retrieveGameSessionWithResponseBodyIntegration(t *testing.T) (tt *testing.T, resp *http.Response, err error) {
+	resp, err = http.Get(TestServerURL + "/game-session/" + currentSessionId)
+	return t, resp, err
+}
+
+func assertBodyWithOnePlayer(t *testing.T, resp *http.Response, err error) {
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 
@@ -86,6 +91,37 @@ func retrieveGameSessionIntegration(t *testing.T) {
 
 	assert.Equal(t, "John", response["player1"])
 	assert.Equal(t, "John", response["nextPlayerMove"])
+	assert.NotContains(t, response, "player2")
+
+	expectedGrid := []interface{}{
+		[]interface{}{float64(0), float64(0), float64(0)},
+		[]interface{}{float64(0), float64(0), float64(0)},
+		[]interface{}{float64(0), float64(0), float64(0)},
+	}
+	assert.Equal(t, expectedGrid, response["gameGrid"])
+}
+
+func assertBodyWithTwoPlayer(t *testing.T, resp *http.Response, err error) {
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	assert.NoError(t, err)
+
+	var response map[string]interface{}
+	err = json.Unmarshal(bodyBytes, &response)
+	assert.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+	sessionId, ok := response["sessionId"].(string)
+	assert.True(t, ok)
+	assert.NotEmpty(t, sessionId)
+	currentSessionId = sessionId
+
+	assert.Equal(t, "John", response["player1"])
+	assert.Equal(t, "John", response["nextPlayerMove"])
+	assert.Equal(t, "Alice", response["player2"])
 
 	expectedGrid := []interface{}{
 		[]interface{}{float64(0), float64(0), float64(0)},
