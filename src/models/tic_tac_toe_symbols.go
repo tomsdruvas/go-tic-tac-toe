@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type TicTacToeSymbol int
 
 const (
@@ -19,4 +21,8 @@ func (s TicTacToeSymbol) String() string {
 	default:
 		return "Unknown"
 	}
+}
+
+func (s TicTacToeSymbol) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
 }

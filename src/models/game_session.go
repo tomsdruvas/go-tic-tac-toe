@@ -6,21 +6,22 @@ import (
 )
 
 type GameSession struct {
-	SessionId        string                `json:"sessionId,omitempty"`
-	Player1          string                `json:"player1,omitempty"`
-	Player2          string                `json:"player2,omitempty"`
-	GameGrid         [3][3]TicTacToeSymbol `json:"gameGrid,omitempty"`
-	NextPlayerToMove string                `json:"nextPlayerMove,omitempty"`
+	SessionId         string                `json:"sessionId,omitempty"`
+	Player1           string                `json:"player1,omitempty"`
+	Player2           string                `json:"player2,omitempty"`
+	GameGrid          [3][3]TicTacToeSymbol `json:"gameGrid,omitempty"`
+	NextPlayerToMove  string                `json:"nextPlayerMove,omitempty"`
+	GameSessionStatus GameSessionStatus     `json:"gameSessionStatus"`
 }
 
 func NewGameSession(player1 string) *GameSession {
 	var grid [3][3]TicTacToeSymbol
 
 	return &GameSession{
-		Player1:          player1,
-		Player2:          "",
-		GameGrid:         grid,
-		NextPlayerToMove: player1,
+		Player1:           player1,
+		GameGrid:          grid,
+		NextPlayerToMove:  player1,
+		GameSessionStatus: Active,
 	}
 }
 

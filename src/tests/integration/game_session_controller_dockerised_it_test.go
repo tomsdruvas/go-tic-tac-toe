@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
@@ -59,9 +60,9 @@ func createGameSessionIntegration(t *testing.T) {
 	assert.Equal(t, "John", response["nextPlayerMove"])
 
 	expectedGrid := []interface{}{
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
+		[]interface{}{"Empty", "Empty", "Empty"},
+		[]interface{}{"Empty", "Empty", "Empty"},
+		[]interface{}{"Empty", "Empty", "Empty"},
 	}
 	assert.Equal(t, expectedGrid, response["gameGrid"])
 }
@@ -74,91 +75,57 @@ func retrieveGameSessionWithResponseBodyIntegration(t *testing.T) (tt *testing.T
 func assertBodyWithOnePlayer(t *testing.T, resp *http.Response, err error) {
 	assert.NoError(t, err)
 	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
-
-	var response map[string]interface{}
-	err = json.Unmarshal(bodyBytes, &response)
-	assert.NoError(t, err)
-
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	sessionId, ok := response["sessionId"].(string)
-	assert.True(t, ok)
-	assert.NotEmpty(t, sessionId)
-	currentSessionId = sessionId
-
-	assert.Equal(t, "John", response["player1"])
-	assert.Equal(t, "John", response["nextPlayerMove"])
-	assert.NotContains(t, response, "player2")
-
-	expectedGrid := []interface{}{
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
 	}
-	assert.Equal(t, expectedGrid, response["gameGrid"])
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"nextPlayerMove": "John",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
 }
 
 func assertBodyWithTwoPlayer(t *testing.T, resp *http.Response, err error) {
 	assert.NoError(t, err)
 	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
-
-	var response map[string]interface{}
-	err = json.Unmarshal(bodyBytes, &response)
-	assert.NoError(t, err)
-
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-	sessionId, ok := response["sessionId"].(string)
-	assert.True(t, ok)
-	assert.NotEmpty(t, sessionId)
-	currentSessionId = sessionId
-
-	assert.Equal(t, "John", response["player1"])
-	assert.Equal(t, "John", response["nextPlayerMove"])
-	assert.Equal(t, "Alice", response["player2"])
-
-	expectedGrid := []interface{}{
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
 	}
-	assert.Equal(t, expectedGrid, response["gameGrid"])
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"nextPlayerMove": "John",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
 }
 
 func addPlayerTwoToGameSessionIntegration(t *testing.T) {
 	jsonBody := `{"player2": "Alice"}`
 	bodyReader := strings.NewReader(jsonBody)
 	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/players", "application/json", bodyReader)
-	assert.NoError(t, err)
-	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-	assert.NoError(t, err)
-
-	var response map[string]interface{}
-	err = json.Unmarshal(bodyBytes, &response)
-	assert.NoError(t, err)
-
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-	sessionId, ok := response["sessionId"].(string)
-	assert.True(t, ok)
-	assert.NotEmpty(t, sessionId)
-
-	assert.Equal(t, "John", response["player1"])
-	assert.Equal(t, "Alice", response["player2"])
-	assert.Equal(t, "John", response["nextPlayerMove"])
-
-	expectedGrid := []interface{}{
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
-		[]interface{}{float64(0), float64(0), float64(0)},
-	}
-	assert.Equal(t, expectedGrid, response["gameGrid"])
+	assertBodyWithTwoPlayer(t, resp, err)
 }

@@ -39,10 +39,11 @@ func TestAddPlayerTwoToGameSessionHandler(t *testing.T) {
         "player1": "Alice",
         "player2": "John",
         "nextPlayerMove": "Alice",
+		"gameSessionStatus":"Active",
         "gameGrid": [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
+            ["Empty", "Empty", "Empty"],
+            ["Empty", "Empty", "Empty"],
+            ["Empty", "Empty", "Empty"]
         ]
     }`,
 		w.Body.String(),

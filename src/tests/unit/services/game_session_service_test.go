@@ -32,6 +32,7 @@ func TestCreateTicTacToeGameSession(t *testing.T) {
 	expectedUUID := mockUuidValue
 	assert.Equal(t, expectedUUID, session.SessionId)
 	assert.Equal(t, playerOne, session.Player1)
+	assert.Equal(t, models.Active, session.GameSessionStatus)
 }
 
 func TestRetrieveTicTacToeGameSession(t *testing.T) {
@@ -40,6 +41,7 @@ func TestRetrieveTicTacToeGameSession(t *testing.T) {
 
 	assert.NotNil(t, session)
 	assert.Equal(t, playerOne, session.Player1)
+	assert.Equal(t, models.Active, session.GameSessionStatus)
 
 	clearGameSessionDatabase()
 }
@@ -57,12 +59,14 @@ func TestAddPlayerTwoToGameSession(t *testing.T) {
 	assert.NotNil(t, updatedGameSession)
 	assert.Equal(t, playerOne, updatedGameSession.Player1)
 	assert.Equal(t, playerTwo, updatedGameSession.Player2)
+	assert.Equal(t, models.Active, updatedGameSession.GameSessionStatus)
 
 	retrievedSession, err := services.RetrieveTicTacToeGameSession(mockUuidValue)
 	assert.Nil(t, err)
 	assert.NotNil(t, retrievedSession)
 	assert.Equal(t, playerOne, retrievedSession.Player1)
 	assert.Equal(t, playerTwo, retrievedSession.Player2)
+	assert.Equal(t, models.Active, retrievedSession.GameSessionStatus)
 	clearGameSessionDatabase()
 }
 

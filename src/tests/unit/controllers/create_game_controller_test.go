@@ -38,10 +38,11 @@ func TestCreateGameHandler(t *testing.T) {
 		"sessionId": "00000000-0000-0000-0000-000000000000",
         "player1": "John",
         "nextPlayerMove": "John",
+		"gameSessionStatus":"Active",
         "gameGrid": [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
+            ["Empty", "Empty", "Empty"],
+            ["Empty", "Empty", "Empty"],
+            ["Empty", "Empty", "Empty"]
         ]
     }`,
 		w.Body.String(),

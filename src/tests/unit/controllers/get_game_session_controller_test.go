@@ -35,10 +35,11 @@ func TestGetGameSessionSuccessfulHandler(t *testing.T) {
 		"sessionId": "00000000-0000-0000-0000-000000000000",
         "player1": "Alice",
         "nextPlayerMove": "Alice",
+		"gameSessionStatus":"Active",
         "gameGrid": [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]
+            ["Empty", "Empty", "Empty"],
+            ["Empty", "Empty", "Empty"],
+            ["Empty", "Empty", "Empty"]
         ]
     }`,
 		w.Body.String(),
