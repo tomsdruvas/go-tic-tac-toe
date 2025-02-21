@@ -12,6 +12,7 @@ type GameSession struct {
 	GameGrid          [3][3]TicTacToeSymbol `json:"gameGrid,omitempty"`
 	NextPlayerToMove  string                `json:"nextPlayerMove,omitempty"`
 	GameSessionStatus GameSessionStatus     `json:"gameSessionStatus"`
+	Winner            string                `json:"winner,omitempty"`
 }
 
 func NewGameSession(player1 string) *GameSession {
