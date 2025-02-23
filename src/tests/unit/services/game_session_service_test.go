@@ -50,6 +50,7 @@ func TestCreateTicTacToeGameSession_ValidUUID(t *testing.T) {
 	session := services.CreateTicTacToeGameSession(playerOne)
 	uuidRegex := regexp.MustCompile(`^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 	assert.Regexp(t, uuidRegex, session.SessionId)
+	clearGameSessionDatabase()
 }
 
 func TestAddPlayerTwoToGameSession(t *testing.T) {
@@ -81,6 +82,29 @@ func TestAddPlayerTwoToGameSession_playerTwoAlreadyExists(t *testing.T) {
 	_, err := services.AddPlayerTwoToGameSession(mockUuidValue, playerTwo)
 	assert.NotNil(t, err)
 	assert.Equal(t, err.Error(), "player2 is already set in the session")
+	clearGameSessionDatabase()
+}
+
+func TestAddMoveOnGameSession(t *testing.T) {
+	createGameSessionInDatabaseWith2Players()
+	gameSession, err := services.AddMoveToGameSession(mockUuidValue, playerOne, 0, 0)
+	assert.Nil(t, err)
+	assert.Equal(t, playerTwo, gameSession.NextPlayerToMove)
+	clearGameSessionDatabase()
+}
+
+func TestAddMoveOnGameSession_withPlayerTwoWhenPlayerOneShouldMakeMove(t *testing.T) {
+	createGameSessionInDatabaseWith2Players()
+	_, err := services.AddMoveToGameSession(mockUuidValue, playerTwo, 0, 0)
+	assert.NotNil(t, err)
+	assert.Equal(t, err.Error(), "player submitting the move is not next player to move")
+	clearGameSessionDatabase()
+}
+
+func TestAddMoveOnGameSession_whenSessionNotFound(t *testing.T) {
+	_, err := services.AddMoveToGameSession(mockUuidValue, playerTwo, 0, 0)
+	assert.NotNil(t, err)
+	assert.Equal(t, err.Error(), "session not found")
 }
 
 func createGameSessionInDatabase() {

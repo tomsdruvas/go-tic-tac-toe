@@ -3,12 +3,10 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"src/src/models"
 	"src/src/services"
 )
 
 type CreateGameController struct {
-	Game *models.GameSession
 }
 
 type CreateGameRequest struct {
@@ -27,7 +25,7 @@ func (bc *CreateGameController) CreateGameControllerHandler(c *gin.Context) {
 		return
 	}
 
-	bc.Game = services.CreateTicTacToeGameSession(req.PlayerName)
+	session := services.CreateTicTacToeGameSession(req.PlayerName)
 
-	c.JSON(http.StatusCreated, bc.Game)
+	c.JSON(http.StatusCreated, session)
 }

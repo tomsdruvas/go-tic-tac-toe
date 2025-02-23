@@ -9,7 +9,7 @@ import (
 const TestServerURL = "http://localhost:8081"
 
 func TestMain(m *testing.M) {
-	setup.SetupDocker()
+	setup.SpinUpDocker()
 	code := m.Run()
 	setup.StopDockerCompose()
 	os.Exit(code)

@@ -33,7 +33,7 @@ func waitForServer() error {
 	return fmt.Errorf("server did not start in time")
 }
 
-func SetupDocker() {
+func SpinUpDocker() {
 	_ = startDockerCompose()
 	_ = waitForServer()
 }

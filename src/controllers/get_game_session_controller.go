@@ -3,12 +3,10 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"src/src/models"
 	"src/src/services"
 )
 
 type GetGameSessionController struct {
-	Game *models.GameSession
 }
 
 func NewGetGameSessionController() *GetGameSessionController {

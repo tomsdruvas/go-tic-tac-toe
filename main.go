@@ -11,6 +11,7 @@ func main() {
 	boardController := controllers.NewCreateGameController()
 	getBoardController := controllers.NewGetGameSessionController()
 	playerTwoGameSessionController := controllers.NewPlayerTwoGameSessionController()
+	submitMoveController := controllers.NewSubmitMoveController()
 
 	router := gin.Default()
 
@@ -18,6 +19,7 @@ func main() {
 	router.POST("/game-session", boardController.CreateGameControllerHandler)
 	router.GET("/game-session/:gameSessionId", getBoardController.GetGameSessionControllerHandler)
 	router.POST("/game-session/:gameSessionId/players", playerTwoGameSessionController.PlayerTwoGameSessionControllerHandler)
+	router.POST("/game-session/:gameSessionId", submitMoveController.SubmitMoveControllerHandler)
 
 	router.Run(":8080")
 }
