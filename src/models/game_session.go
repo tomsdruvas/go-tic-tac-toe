@@ -95,11 +95,13 @@ func (session *GameSession) calculateGameSessionStatus() {
 	if session.hasWinningRow() || session.hasWinningColumn() || session.hasWinningDiagonal() {
 		session.GameSessionStatus = Finished
 		session.Winner = session.NextPlayerToMove
+		session.NextPlayerToMove = ""
 		return
 	}
 
 	if session.isDraw() {
 		session.GameSessionStatus = Draw
+		session.NextPlayerToMove = ""
 	}
 }
 

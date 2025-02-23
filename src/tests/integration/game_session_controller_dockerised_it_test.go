@@ -18,6 +18,11 @@ func TestTicTacToeFullFlow(t *testing.T) {
 	assertBodyWithOnePlayer(retrieveGameSessionWithResponseBodyIntegration(t))
 	addPlayerTwoToGameSessionIntegration(t)
 	assertBodyWithTwoPlayer(retrieveGameSessionWithResponseBodyIntegration(t))
+	playerOneMakesFirstMove(t)
+	playerTwoMakesSecondMove(t)
+	playerOneMakesThirdMove(t)
+	playerTwoMakesFourthMove(t)
+	playerOneMakesFifthMove(t)
 }
 
 func TestRetrieveNotFoundGameSessionIntegration(t *testing.T) {
@@ -128,4 +133,154 @@ func addPlayerTwoToGameSessionIntegration(t *testing.T) {
 	bodyReader := strings.NewReader(jsonBody)
 	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/players", "application/json", bodyReader)
 	assertBodyWithTwoPlayer(t, resp, err)
+}
+
+func playerOneMakesFirstMove(t *testing.T) {
+	jsonBody := `{"playerName": "John",
+					"xAxis": 0, "yAxis": 0}`
+	bodyReader := strings.NewReader(jsonBody)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"nextPlayerMove": "Alice",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Cross", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
+}
+
+func playerTwoMakesSecondMove(t *testing.T) {
+	jsonBody := `{"playerName": "Alice",
+					"xAxis": 1, "yAxis": 0}`
+	bodyReader := strings.NewReader(jsonBody)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"nextPlayerMove": "John",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Cross", "Empty", "Empty"],
+			["Circle", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
+}
+
+func playerOneMakesThirdMove(t *testing.T) {
+	jsonBody := `{"playerName": "John",
+					"xAxis": 0, "yAxis": 1}`
+	bodyReader := strings.NewReader(jsonBody)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"nextPlayerMove": "Alice",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Cross", "Cross", "Empty"],
+			["Circle", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
+}
+
+func playerTwoMakesFourthMove(t *testing.T) {
+	jsonBody := `{"playerName": "Alice",
+					"xAxis": 2, "yAxis": 0}`
+	bodyReader := strings.NewReader(jsonBody)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"nextPlayerMove": "John",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Cross", "Cross", "Empty"],
+			["Circle", "Empty", "Empty"],
+			["Circle", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
+}
+
+func playerOneMakesFifthMove(t *testing.T) {
+	jsonBody := `{"playerName": "John",
+					"xAxis": 0, "yAxis": 2}`
+	bodyReader := strings.NewReader(jsonBody)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	assert.NoError(t, err)
+	defer resp.Body.Close()
+	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"gameSessionStatus": "Finished",
+		"winner": "John",
+		"gameGrid": [
+			["Cross", "Cross", "Cross"],
+			["Circle", "Empty", "Empty"],
+			["Circle", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+
+	assert.JSONEq(t, expectedJSON, string(body))
 }

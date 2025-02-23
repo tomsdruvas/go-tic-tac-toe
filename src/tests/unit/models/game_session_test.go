@@ -136,7 +136,7 @@ func TestSetSymbolOnGameSession_whenGameEndUpInFinishedState(t *testing.T) {
 			returnedGameSession, err := tt.inputGameSession.SetSymbolOnBoard("Alice", tt.nextMove[0], tt.nextMove[1])
 			assert.NoError(t, err)
 			assert.Equal(t, models.Finished, returnedGameSession.GameSessionStatus)
-			assert.Equal(t, "Alice", returnedGameSession.NextPlayerToMove)
+			assert.Equal(t, "", returnedGameSession.NextPlayerToMove)
 			assert.Equal(t, "Alice", returnedGameSession.Winner)
 		})
 	}
@@ -147,6 +147,7 @@ func TestSetSymbolOnGameSession_whenNextMoveEndsInDraw(t *testing.T) {
 	_, err := session.SetSymbolOnBoard("Alice", 0, 2)
 	assert.Nil(t, err)
 	assert.Equal(t, models.Draw, session.GameSessionStatus)
+	assert.Equal(t, "", session.NextPlayerToMove)
 }
 
 func createGameSessionWithSymbolsOnGrid(first [2]int, second [2]int) *models.GameSession {

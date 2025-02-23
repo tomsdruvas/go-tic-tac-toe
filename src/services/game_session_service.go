@@ -40,18 +40,23 @@ func AddPlayerTwoToGameSession(gameSessionId string, playerTwo string) (models.G
 	return updatedSession, nil
 }
 
-func AddMoveToGameSession(gameSessionId string, playerName string, xAxis int, yAxis int) (*models.GameSession, error) {
+func AddMoveToGameSession(gameSessionId string, playerName string, xAxis int, yAxis int) (models.GameSession, error) {
 	databaseInstance := database.GetInstance()
 	gameSession, getSessionErr := databaseInstance.GetSession(gameSessionId)
 	if getSessionErr != nil {
-		return nil, getSessionErr
+		return models.GameSession{}, getSessionErr
 	}
 
 	updatedSession, err := gameSession.SetSymbolOnBoard(playerName, xAxis, yAxis)
 
 	if err != nil {
-		return nil, err
+		return models.GameSession{}, err
 	}
 
-	return updatedSession, nil
+	updatedSavedSession, err := databaseInstance.UpdateSession(gameSessionId, *updatedSession)
+	if err != nil {
+		return models.GameSession{}, err
+	}
+
+	return updatedSavedSession, nil
 }
