@@ -1,4 +1,4 @@
-module src
+module tic-tac-toe-game
 
 go 1.22.0
 

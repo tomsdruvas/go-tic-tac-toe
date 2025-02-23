@@ -2,8 +2,8 @@ package database
 
 import (
 	"errors"
-	"src/src/models"
 	"sync"
+	"tic-tac-toe-game/src/models"
 )
 
 var (

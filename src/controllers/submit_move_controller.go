@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"src/src/models"
-	"src/src/services"
+	"tic-tac-toe-game/src/models"
+	"tic-tac-toe-game/src/services"
 )
 
 type SubmitMoveController struct {

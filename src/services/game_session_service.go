@@ -1,8 +1,8 @@
 package services
 
 import (
-	"src/src/database"
-	"src/src/models"
+	"tic-tac-toe-game/src/database"
+	"tic-tac-toe-game/src/models"
 )
 
 func CreateTicTacToeGameSession(playerOne string) *models.GameSession {

@@ -6,9 +6,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
-	_ "src/src/tests/integration/setup"
 	"strings"
 	"testing"
+	_ "tic-tac-toe-game/src/tests/integration/setup"
 )
 
 var currentSessionId string

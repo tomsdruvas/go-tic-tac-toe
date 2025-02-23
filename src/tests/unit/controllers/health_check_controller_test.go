@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"src/src/controllers"
+	"tic-tac-toe-game/src/controllers"
 )
 
 func setupHealthCheckRouter() *gin.Engine {

@@ -2,8 +2,8 @@ package integration_test
 
 import (
 	"os"
-	"src/src/tests/integration/setup"
 	"testing"
+	"tic-tac-toe-game/src/tests/integration/setup"
 )
 
 const TestServerURL = "http://localhost:8081"

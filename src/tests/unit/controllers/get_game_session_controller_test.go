@@ -4,12 +4,12 @@ import (
 	_ "github.com/google/uuid"
 	"net/http"
 	"net/http/httptest"
-	_ "src/src/services"
 	"testing"
+	_ "tic-tac-toe-game/src/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"src/src/controllers"
+	"tic-tac-toe-game/src/controllers"
 )
 
 func setupGetGameSessionRouter() *gin.Engine {

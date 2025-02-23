@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"src/src/models"
-	"src/src/services"
+	"tic-tac-toe-game/src/models"
+	"tic-tac-toe-game/src/services"
 )
 
 type PlayerTwoGameSessionController struct {
@@ -26,7 +26,7 @@ func (bc *PlayerTwoGameSessionController) PlayerTwoGameSessionControllerHandler(
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	
+
 	gameSessionId := c.Param("gameSessionId")
 
 	gameSession, err := services.AddPlayerTwoToGameSession(gameSessionId, req.PlayerTwoName)

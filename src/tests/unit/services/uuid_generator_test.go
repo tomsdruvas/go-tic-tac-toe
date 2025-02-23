@@ -2,8 +2,8 @@ package services
 
 import (
 	"regexp"
-	"src/src/services"
 	"testing"
+	"tic-tac-toe-game/src/services"
 )
 
 var uuidRegex = regexp.MustCompile(`^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)

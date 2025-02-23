@@ -2,10 +2,10 @@ package controllers_test
 
 import (
 	"github.com/google/uuid"
-	"src/src/database"
-	"src/src/models"
-	"src/src/services"
 	"testing"
+	"tic-tac-toe-game/src/database"
+	"tic-tac-toe-game/src/models"
+	"tic-tac-toe-game/src/services"
 )
 
 func WithMockedUuid(t *testing.T, mockFunc func() uuid.UUID) {

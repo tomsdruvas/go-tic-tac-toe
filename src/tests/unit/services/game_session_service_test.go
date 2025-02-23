@@ -3,11 +3,11 @@ package services
 import (
 	"github.com/google/uuid"
 	"regexp"
-	"src/src/database"
-	"src/src/models"
-	_ "src/src/models"
-	"src/src/services"
 	"testing"
+	"tic-tac-toe-game/src/database"
+	"tic-tac-toe-game/src/models"
+	_ "tic-tac-toe-game/src/models"
+	"tic-tac-toe-game/src/services"
 
 	"github.com/stretchr/testify/assert"
 )

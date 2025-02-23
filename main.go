@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	_ "net/http"
-	"src/src/controllers"
+	"tic-tac-toe-game/src/controllers"
 )
 
 func main() {

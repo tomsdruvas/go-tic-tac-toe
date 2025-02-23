@@ -2,8 +2,8 @@ package models_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	. "src/src/models"
 	"testing"
+	. "tic-tac-toe-game/src/models"
 )
 
 func TestGameSessionStatusString(t *testing.T) {
