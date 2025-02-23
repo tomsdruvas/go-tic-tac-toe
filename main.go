@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"log"
 	_ "net/http"
 	"src/src/controllers"
 )
@@ -21,5 +22,8 @@ func main() {
 	router.POST("/game-session/:gameSessionId/players", playerTwoGameSessionController.PlayerTwoGameSessionControllerHandler)
 	router.POST("/game-session/:gameSessionId", submitMoveController.SubmitMoveControllerHandler)
 
-	router.Run(":8080")
+	err := router.Run(":8080")
+	if err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
