@@ -39,3 +39,4 @@ go.work.sum
 *.iml
 
 .DS_Store
+go.sum

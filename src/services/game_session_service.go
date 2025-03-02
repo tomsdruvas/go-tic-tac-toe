@@ -5,27 +5,32 @@ import (
 	"tic-tac-toe-game/src/models"
 )
 
-func CreateTicTacToeGameSession(playerOne string) *models.GameSession {
+type GameSessionService struct {
+	db *database.InMemoryGameSessionDB
+}
+
+func NewGameSessionService(db *database.InMemoryGameSessionDB) *GameSessionService {
+	return &GameSessionService{db: db}
+}
+
+func (s *GameSessionService) CreateTicTacToeGameSession(playerOne string) *models.GameSession {
 	newGameSession := models.NewGameSession(playerOne)
 	newGameSession.SessionId = GenerateUuid()
-	databaseInstance := database.GetInstance()
-	databaseInstance.StoreSession(*newGameSession)
+	s.db.StoreSession(*newGameSession)
 
 	return newGameSession
 }
 
-func RetrieveTicTacToeGameSession(gameSessionId string) (models.GameSession, error) {
-	databaseInstance := database.GetInstance()
-	gameSession, err := databaseInstance.GetSession(gameSessionId)
+func (s *GameSessionService) RetrieveTicTacToeGameSession(gameSessionId string) (models.GameSession, error) {
+	gameSession, err := s.db.GetSession(gameSessionId)
 	if err != nil {
 		return models.GameSession{}, err
 	}
 	return gameSession, nil
 }
 
-func AddPlayerTwoToGameSession(gameSessionId string, playerTwo string) (models.GameSession, error) {
-	databaseInstance := database.GetInstance()
-	gameSession, err := databaseInstance.GetSession(gameSessionId)
+func (s *GameSessionService) AddPlayerTwoToGameSession(gameSessionId string, playerTwo string) (models.GameSession, error) {
+	gameSession, err := s.db.GetSession(gameSessionId)
 	if err != nil {
 		return models.GameSession{}, err
 	}
@@ -33,16 +38,15 @@ func AddPlayerTwoToGameSession(gameSessionId string, playerTwo string) (models.G
 	if err != nil {
 		return models.GameSession{}, err
 	}
-	updatedSession, err := databaseInstance.UpdateSession(gameSessionId, gameSession)
+	updatedSession, err := s.db.UpdateSession(gameSessionId, gameSession)
 	if err != nil {
 		return models.GameSession{}, err
 	}
 	return updatedSession, nil
 }
 
-func AddMoveToGameSession(gameSessionId string, playerName string, xAxis int, yAxis int) (models.GameSession, error) {
-	databaseInstance := database.GetInstance()
-	gameSession, getSessionErr := databaseInstance.GetSession(gameSessionId)
+func (s *GameSessionService) AddMoveToGameSession(gameSessionId string, playerName string, xAxis int, yAxis int) (models.GameSession, error) {
+	gameSession, getSessionErr := s.db.GetSession(gameSessionId)
 	if getSessionErr != nil {
 		return models.GameSession{}, getSessionErr
 	}
@@ -53,7 +57,7 @@ func AddMoveToGameSession(gameSessionId string, playerName string, xAxis int, yA
 		return models.GameSession{}, err
 	}
 
-	updatedSavedSession, err := databaseInstance.UpdateSession(gameSessionId, *updatedSession)
+	updatedSavedSession, err := s.db.UpdateSession(gameSessionId, *updatedSession)
 	if err != nil {
 		return models.GameSession{}, err
 	}

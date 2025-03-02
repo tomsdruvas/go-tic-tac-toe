@@ -3,18 +3,35 @@ package integration_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"testing"
 	_ "tic-tac-toe-game/src/tests/integration/setup"
 )
 
-var currentSessionId string
+const (
+	websocketGameSessionPath = "ws://localhost:8091/game-session?gameSessionId="
+)
+
+var (
+	currentSessionId string
+	conn             *websocket.Conn
+	httpResponse     *http.Response
+	err              error
+	done             chan struct{}
+	messages         []string
+	mu               sync.Mutex
+)
 
 func TestTicTacToeFullFlow(t *testing.T) {
 	createGameSessionIntegration(t)
+
+	connectToWebsocketsForGameSession(t)
+
 	assertBodyWithOnePlayer(retrieveGameSessionWithResponseBodyIntegration(t))
 	addPlayerTwoToGameSessionIntegration(t)
 	assertBodyWithTwoPlayer(retrieveGameSessionWithResponseBodyIntegration(t))
@@ -23,6 +40,8 @@ func TestTicTacToeFullFlow(t *testing.T) {
 	playerOneMakesThirdMove(t)
 	playerTwoMakesFourthMove(t)
 	playerOneMakesFifthMove(t)
+
+	gracefullyCloseWebSocketConnection(t)
 }
 
 func TestRetrieveNotFoundGameSessionIntegration(t *testing.T) {
@@ -70,6 +89,55 @@ func createGameSessionIntegration(t *testing.T) {
 		[]interface{}{"Empty", "Empty", "Empty"},
 	}
 	assert.Equal(t, expectedGrid, response["gameGrid"])
+}
+
+func connectToWebsocketsForGameSession(t *testing.T) {
+	dialer := websocket.Dialer{}
+	conn, httpResponse, err = dialer.Dial(websocketGameSessionPath+currentSessionId, nil)
+	if err != nil {
+		t.Fatalf("Failed to connect to WebSocket: %v", err)
+	}
+
+	if conn == nil {
+		t.Fatalf("Expected a valid WebSocket connection, got nil")
+	}
+
+	if httpResponse.StatusCode != http.StatusSwitchingProtocols {
+		t.Errorf("Expected HTTP status 101 (Switching Protocols), got %v", httpResponse.StatusCode)
+	}
+
+	done = make(chan struct{})
+
+	go func() {
+		for {
+			_, msg, err := conn.ReadMessage()
+			if err != nil {
+				select {
+				case <-done:
+					t.Logf("Gracefully stopping message read loop.")
+					return
+				default:
+					t.Logf("Error reading message: %v", err)
+					return
+				}
+			}
+
+			t.Logf("Received message: %s", msg)
+			mu.Lock()
+			messages = append(messages, string(msg))
+			mu.Unlock()
+		}
+	}()
+}
+
+func gracefullyCloseWebSocketConnection(t *testing.T) {
+	close(done)
+	<-done
+	err = conn.Close()
+	if err != nil {
+		t.Fatalf("Error closing WebSocket connection: %v", err)
+	}
+	t.Log("WebSocket connection closed gracefully")
 }
 
 func retrieveGameSessionWithResponseBodyIntegration(t *testing.T) (tt *testing.T, resp *http.Response, err error) {
@@ -133,13 +201,37 @@ func addPlayerTwoToGameSessionIntegration(t *testing.T) {
 	bodyReader := strings.NewReader(jsonBody)
 	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/players", "application/json", bodyReader)
 	assertBodyWithTwoPlayer(t, resp, err)
+
+	expectedJSON := fmt.Sprintf(`{
+		"sessionId": "%s",
+		"player1": "John",
+		"player2": "Alice",
+		"nextPlayerMove": "John",
+		"gameSessionStatus": "Active",
+		"gameGrid": [
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"],
+			["Empty", "Empty", "Empty"]
+		]
+	}`, currentSessionId)
+	assertAndPopWebsocketMessage(t, expectedJSON)
+}
+
+func assertAndPopWebsocketMessage(t *testing.T, expectedMessage string) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	assert.Equal(t, 1, len(messages))
+	assert.JSONEq(t, messages[0], expectedMessage)
+
+	messages = messages[1:]
 }
 
 func playerOneMakesFirstMove(t *testing.T) {
 	jsonBody := `{"playerName": "John",
 					"xAxis": 0, "yAxis": 0}`
 	bodyReader := strings.NewReader(jsonBody)
-	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/move", "application/json", bodyReader)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -163,13 +255,14 @@ func playerOneMakesFirstMove(t *testing.T) {
 	}`, currentSessionId)
 
 	assert.JSONEq(t, expectedJSON, string(body))
+	assertAndPopWebsocketMessage(t, expectedJSON)
 }
 
 func playerTwoMakesSecondMove(t *testing.T) {
 	jsonBody := `{"playerName": "Alice",
 					"xAxis": 1, "yAxis": 0}`
 	bodyReader := strings.NewReader(jsonBody)
-	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/move", "application/json", bodyReader)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -193,13 +286,14 @@ func playerTwoMakesSecondMove(t *testing.T) {
 	}`, currentSessionId)
 
 	assert.JSONEq(t, expectedJSON, string(body))
+	assertAndPopWebsocketMessage(t, expectedJSON)
 }
 
 func playerOneMakesThirdMove(t *testing.T) {
 	jsonBody := `{"playerName": "John",
 					"xAxis": 0, "yAxis": 1}`
 	bodyReader := strings.NewReader(jsonBody)
-	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/move", "application/json", bodyReader)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -223,13 +317,14 @@ func playerOneMakesThirdMove(t *testing.T) {
 	}`, currentSessionId)
 
 	assert.JSONEq(t, expectedJSON, string(body))
+	assertAndPopWebsocketMessage(t, expectedJSON)
 }
 
 func playerTwoMakesFourthMove(t *testing.T) {
 	jsonBody := `{"playerName": "Alice",
 					"xAxis": 2, "yAxis": 0}`
 	bodyReader := strings.NewReader(jsonBody)
-	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/move", "application/json", bodyReader)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -253,13 +348,14 @@ func playerTwoMakesFourthMove(t *testing.T) {
 	}`, currentSessionId)
 
 	assert.JSONEq(t, expectedJSON, string(body))
+	assertAndPopWebsocketMessage(t, expectedJSON)
 }
 
 func playerOneMakesFifthMove(t *testing.T) {
 	jsonBody := `{"playerName": "John",
 					"xAxis": 0, "yAxis": 2}`
 	bodyReader := strings.NewReader(jsonBody)
-	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId, "application/json", bodyReader)
+	resp, err := http.Post(TestServerURL+"/game-session/"+currentSessionId+"/move", "application/json", bodyReader)
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
@@ -283,4 +379,5 @@ func playerOneMakesFifthMove(t *testing.T) {
 	}`, currentSessionId)
 
 	assert.JSONEq(t, expectedJSON, string(body))
+	assertAndPopWebsocketMessage(t, expectedJSON)
 }

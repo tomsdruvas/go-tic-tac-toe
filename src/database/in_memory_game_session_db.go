@@ -6,18 +6,6 @@ import (
 	"tic-tac-toe-game/src/models"
 )
 
-var (
-	instance *InMemoryGameSessionDB
-	once     sync.Once
-)
-
-func GetInstance() *InMemoryGameSessionDB {
-	once.Do(func() {
-		instance = NewInMemoryGameSessionDB()
-	})
-	return instance
-}
-
 type InMemoryGameSessionDB struct {
 	sessions map[string]models.GameSession
 	mu       sync.RWMutex

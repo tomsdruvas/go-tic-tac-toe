@@ -19,24 +19,21 @@ func MockUUID() uuid.UUID {
 	return uuid.MustParse("00000000-0000-0000-0000-000000000000")
 }
 
-func CreateGameSessionInDatabase() {
+func CreateGameSessionInDatabase(db *database.InMemoryGameSessionDB) {
 	playerName := "Alice"
 	session := models.NewGameSession(playerName)
 	session.SessionId = "00000000-0000-0000-0000-000000000000"
-	db := database.GetInstance()
 	db.StoreSession(*session)
 }
 
-func CreateGameSessionInDatabaseWithPlayerTwo() {
+func CreateGameSessionInDatabaseWithPlayerTwo(db *database.InMemoryGameSessionDB) {
 	playerName := "Alice"
 	session := models.NewGameSession(playerName)
 	session.Player2 = "John"
 	session.SessionId = "00000000-0000-0000-0000-000000000000"
-	db := database.GetInstance()
 	db.StoreSession(*session)
 }
 
-func ClearGameSessionDatabase() {
-	db := database.GetInstance()
+func ClearGameSessionDatabase(db *database.InMemoryGameSessionDB) {
 	db.Clear()
 }

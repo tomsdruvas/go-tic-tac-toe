@@ -6,6 +6,7 @@ services:
     container_name: test_app
     ports:
       - "8081:8080"
+      - "8091:8090"
     environment:
       - TEST_MODE=true
     healthcheck:
